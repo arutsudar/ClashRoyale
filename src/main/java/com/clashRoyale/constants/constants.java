@@ -12,6 +12,13 @@ public class constants {
     @Value("${playerUrl}")
     public String playerUrl;
 
+    @Value("${clanUrl}")
+    public String clanUrl;
+    
+	public String getClanUrl() {
+		return clanUrl;
+	}
+
 	public String getToken() {
 		return token;
 	}

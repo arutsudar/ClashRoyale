@@ -1,43 +1,24 @@
 package com.clashRoyale.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+"tag",
+"name",
+"trophies",
+"rank"
+})
 public class Player {
+	@JsonProperty("tag")
 	private String tag;
+	@JsonProperty("name")
 	private String name;
-	private String trophies;
+	@JsonProperty("trophies")
+	private Integer trophies;
+	@JsonProperty("rank")
 	private String rank;
 	
-	public Player(){}
-	
-	public Player(String name, String tag, String rank,String trophies){
-		this.name = name;
-		this.tag = tag;
-		this.rank = rank;
-		this.trophies = trophies;
-	}
-	
-	
-	public String getTag() {
-		return tag;
-	}
-	public void setTag(String tag) {
-		this.tag = tag;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getTrophies() {
-		return trophies;
-	}
-	public void setTrophies(String trophies) {
-		this.trophies = trophies;
-	}
-	public String getRank() {
-		return rank;
-	}
-	public void setRank(String rank) {
-		this.rank = rank;
-	}
 }
