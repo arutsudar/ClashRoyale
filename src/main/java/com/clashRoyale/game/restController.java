@@ -2,28 +2,27 @@ package com.clashRoyale.game;
 
 
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.clashRoyale.constants.constants;
+import com.clashRoyale.services.service;
 
 @RestController
 public class restController {
 
 	@Autowired
-	RestTemplate restTemplate; 
+	constants con;
+
+	@Autowired
+	service serv;
 	
 	@Autowired
-	constants con;
+	RestTemplate restTemplate; 
 	
 	@Bean
     public RestTemplate restTemplate() {
@@ -31,81 +30,45 @@ public class restController {
     }
 	
 	@Bean
+    public com.clashRoyale.services.service service() {
+        return new service();
+    }
+	@Bean
     public com.clashRoyale.constants.constants constants() {
         return new constants();
     }
 	
 	@GetMapping(value="player/{playerTag}")
 	private JSONObject player(@PathVariable("playerTag") String playerTag) {
-		
-		String token = con.getToken();
 	    String playerUrl = con.getPlayerUrl() + playerTag;
-	    
-	    try
-		{
-			HttpHeaders headers = new HttpHeaders();
-			headers.add("Authorization", "bearer "+token);
-			headers.add("Content-Type", "application/json");
-			HttpEntity<String> request = new HttpEntity<String>(headers);
-			ResponseEntity<String> response = restTemplate.exchange(playerUrl, HttpMethod.GET, request, String.class);
-			
-			JSONParser parser = new JSONParser();
-			Object obj = parser.parse(response.getBody());
-			JSONObject resultObj = (JSONObject) obj;
-			
-			return resultObj;
-		}
-		catch(Exception ex)
-		{
-			System.out.println(ex.getMessage());
-			return null;
-		}
+	    return serv.httpCall(playerUrl);
 	}
-
-	/*
-	@GetMapping(value="player/{playerTag}/{anyValue}")
-	private Object player(@PathVariable("playerTag") String playerTag, @PathVariable("anyValue") String anyValue) {
-	    System.out.println(anyValue);
-	    try {
-		    JSONObject resultObj = player(playerTag);
-		    if(resultObj.containsKey(anyValue))
-		    	return resultObj.get(anyValue);
-		    else
-		    	return null;	
-	    }
-		catch(Exception ex)
-		{
-			System.out.println(ex.getMessage());
-			return null;
-		}
-	}
-	*/
 	
 	@GetMapping(value="clan/{clanTag}/war")
 	private JSONObject clanWar(@PathVariable("clanTag") String clanTag) {
-		
-		String token = con.getToken();
 	    String clanUrl = con.getClanUrl() + clanTag + "/war";
-	    
-	    try
-		{
-			HttpHeaders headers = new HttpHeaders();
-			headers.add("Authorization", "bearer "+token);
-			headers.add("Content-Type", "application/json");
-			HttpEntity<String> request = new HttpEntity<String>(headers);
-			ResponseEntity<String> response = restTemplate.exchange(clanUrl, HttpMethod.GET, request, String.class);
-			
-			JSONParser parser = new JSONParser();
-			Object obj = parser.parse(response.getBody());
-			JSONObject resultObj = (JSONObject) obj;
-			
-			return resultObj;
-		}
-		catch(Exception ex)
-		{
-			System.out.println(ex.getMessage());
-			return null;
-		}
+	    return serv.httpCall(clanUrl);
 	}
+	
+	@GetMapping(value="tournament/{tournamentTag}")
+	private JSONObject tournament(@PathVariable("tournamentTag") String tournamentTag) {
+	    String tournamentUrl = con.getClanUrl() + tournamentTag;    
+	    return serv.httpCall(tournamentUrl);
+	}
+	
+	
+	/*
+	@GetMapping(value="playe/{playerTag}")
+	private JSONObject playe(@PathVariable("playerTag") String playerTag) {
+		
+		Api api = new Api("http://api.royaleapi.com/", con.getToken()); // standard auth mode
+		String version = api.getVersion();
+		Profile profile = api.getProfile(ProfileRequest.builder("2PGGCJJL")
+			    .keys(Arrays.asList("name", "clan", "tag"))
+			    .excludes(Arrays.asList("battles"))
+			    .build()
+			);
+	}
+	*/
 	
 }

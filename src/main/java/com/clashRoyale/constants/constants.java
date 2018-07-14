@@ -14,7 +14,14 @@ public class constants {
 
     @Value("${clanUrl}")
     public String clanUrl;
+
+    @Value("${tournamentUrl}")
+    public String tournamentUrl;
     
+	public String getTournamentUrl() {
+		return tournamentUrl;
+	}
+
 	public String getClanUrl() {
 		return clanUrl;
 	}
