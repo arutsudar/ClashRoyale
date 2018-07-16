@@ -1,6 +1,7 @@
 package com.clashRoyale.game;
 
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -47,7 +48,8 @@ public class restController {
 	@GetMapping(value="clan/{clanTag}/war")
 	private JSONObject clanWar(@PathVariable("clanTag") String clanTag) {
 	    String clanUrl = con.getClanUrl() + clanTag + "/war";
-	    return serv.httpCall(clanUrl);
+	    JSONObject warStats = serv.httpCall(clanUrl);
+	    return warStats;
 	}
 	
 	@GetMapping(value="tournament/{tournamentTag}")
@@ -56,6 +58,32 @@ public class restController {
 	    return serv.httpCall(tournamentUrl);
 	}
 	
+	@GetMapping(value="warwins/{clanTag}")
+	private String[] warwins(@PathVariable("clanTag") String clanTag) {
+		String playerUrl;
+		JSONObject playerDetails;
+		String clanUrl=con.getClanUrl() + clanTag;
+		String[] memberList = new String[51];
+		String[] memberTag = new String[51];
+		long[] warWins = new long[51];
+		long[] clanCardsCollected = new long[51];
+		JSONObject resultObj = serv.httpCall(clanUrl);
+		System.out.println(((JSONArray)resultObj.get("members")).size());
+		int memberListSize = ((JSONArray)resultObj.get("members")).size();
+		for (int i = 0; i < memberListSize; i++) {
+			memberList[i] = (String) ((JSONObject)((JSONArray)resultObj.get("members")).get(i)).get("name");
+			memberTag[i] = (String)((JSONObject)((JSONArray)resultObj.get("members")).get(i)).get("tag");
+			
+			playerUrl = con.getPlayerUrl() + memberTag[i];
+		    playerDetails = serv.httpCall(playerUrl);
+		    
+		    clanCardsCollected[i] = (long) ((JSONObject)playerDetails.get("stats")).get("clanCardsCollected");
+		    warWins[i] = (long) ((JSONObject)playerDetails.get("games")).get("warDayWins");
+		    
+			System.out.println(memberList[i]+"      "+warWins[i]+"      "+clanCardsCollected[i]+"\n");			
+		}
+		return memberList;
+	}
 	
 	/*
 	@GetMapping(value="playe/{playerTag}")
