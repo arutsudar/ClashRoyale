@@ -61,8 +61,35 @@ public class restController {
 	
 	@GetMapping(value="tournament/{tournamentTag}")
 	private JSONObject tournament(@PathVariable("tournamentTag") String tournamentTag) {
-	    String tournamentUrl = con.getClanUrl() + tournamentTag;    
+	    String tournamentUrl = con.getTournamentUrl() + tournamentTag;    
 	    return serv.httpCall(tournamentUrl);
+	}
+
+	@GetMapping(value="tournamentPlayersDecks/{tournamentTag}")
+	private JSONObject tournamentPlayersDecks(@PathVariable("tournamentTag") String tournamentTag) {
+		JSONObject tournamentPlayersDecks = new JSONObject();
+		JSONArray tournamentPlayersDecksArr = new JSONArray();
+		String playerTag = null;
+		String playerName = null;
+		String playerDeckLink = null;
+	    String tournamentUrl = con.getTournamentUrl() + tournamentTag;  
+	    JSONObject tournamentObj = serv.httpCall(tournamentUrl);
+		long currentNoOfPlayers = (long)tournamentObj.get("currentPlayers");
+		
+		for (int i = 0; i < currentNoOfPlayers; i++) {
+			playerTag = (String) ((JSONObject)((JSONArray)tournamentObj.get("members")).get(i)).get("tag");
+			playerName = (String) ((JSONObject)((JSONArray)tournamentObj.get("members")).get(i)).get("name");
+			JSONObject playerObj = player(playerTag);
+			playerDeckLink = (String) playerObj.get("deckLink");
+			JSONObject playerDeckLinkTemp = new JSONObject();
+			playerDeckLinkTemp.put("Name", playerName);
+			playerDeckLinkTemp.put("Tag", playerTag);
+			playerDeckLinkTemp.put("DeckLink", playerDeckLink);
+			tournamentPlayersDecksArr.add(playerDeckLinkTemp);
+			
+		}
+		tournamentPlayersDecks.put("tournamentPlayersDecks", tournamentPlayersDecksArr);
+		return tournamentPlayersDecks;
 	}
 	
 	@GetMapping(value="warwins/{clanTag}")
@@ -77,12 +104,12 @@ public class restController {
 		String[] memberTag = new String[51];
 		long[] warWins = new long[51];
 		long[] clanCardsCollected = new long[51];
-		JSONObject resultObj = serv.httpCall(clanUrl);
-		long memberCount = (long) resultObj.get("memberCount");
+		JSONObject clanObj = clan(clanUrl);
+		long memberCount = (long) clanObj.get("memberCount");
 System.out.println(memberCount);
 		for (int i = 0; i < memberCount; i++) {
-			memberName[i] = (String) ((JSONObject)((JSONArray)resultObj.get("members")).get(i)).get("name");
-			memberTag[i] = (String)((JSONObject)((JSONArray)resultObj.get("members")).get(i)).get("tag");
+			memberName[i] = (String) ((JSONObject)((JSONArray)clanObj.get("members")).get(i)).get("name");
+			memberTag[i] = (String)((JSONObject)((JSONArray)clanObj.get("members")).get(i)).get("tag");
 			
 			playerUrl = con.getPlayerUrl() + memberTag[i];
 		    playerDetails = serv.httpCall(playerUrl);
@@ -93,6 +120,7 @@ System.out.println(memberCount);
 			System.out.println(memberName[i]+"      "+warWins[i]+"      "+clanCardsCollected[i]+"\n");	
 			JSONObject warWinsJsonTemp = new JSONObject();
 			warWinsJsonTemp.put("Name",memberName[i]); 
+			warWinsJsonTemp.put("Tag",memberTag[i]); 
 			warWinsJsonTemp.put("WarWins",warWins[i]); 
 			warWinsJsonTemp.put("ClanCardsCollected",clanCardsCollected[i]); 
 			warWinsArr.add(warWinsJsonTemp);
