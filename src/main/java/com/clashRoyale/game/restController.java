@@ -51,6 +51,13 @@ public class restController {
 	    JSONObject warStats = serv.httpCall(clanUrl);
 	    return warStats;
 	}
+
+	@GetMapping(value="clan/{clanTag}")
+	private JSONObject clan(@PathVariable("clanTag") String clanTag) {
+	    String clanUrl = con.getClanUrl() + clanTag;
+	    JSONObject clanStats = serv.httpCall(clanUrl);
+	    return clanStats;
+	}
 	
 	@GetMapping(value="tournament/{tournamentTag}")
 	private JSONObject tournament(@PathVariable("tournamentTag") String tournamentTag) {
@@ -59,19 +66,20 @@ public class restController {
 	}
 	
 	@GetMapping(value="warwins/{clanTag}")
-	private String[] warwins(@PathVariable("clanTag") String clanTag) {
+	private JSONObject warwins(@PathVariable("clanTag") String clanTag) {
 		String playerUrl;
 		JSONObject playerDetails;
+		JSONObject warWinsJson = new JSONObject();
 		String clanUrl=con.getClanUrl() + clanTag;
-		String[] memberList = new String[51];
+		String[] memberName = new String[51];
 		String[] memberTag = new String[51];
 		long[] warWins = new long[51];
 		long[] clanCardsCollected = new long[51];
 		JSONObject resultObj = serv.httpCall(clanUrl);
-		System.out.println(((JSONArray)resultObj.get("members")).size());
-		int memberListSize = ((JSONArray)resultObj.get("members")).size();
-		for (int i = 0; i < memberListSize; i++) {
-			memberList[i] = (String) ((JSONObject)((JSONArray)resultObj.get("members")).get(i)).get("name");
+		long memberCount = (long) resultObj.get("memberCount");
+System.out.println(memberCount);
+		for (int i = 0; i < memberCount; i++) {
+			memberName[i] = (String) ((JSONObject)((JSONArray)resultObj.get("members")).get(i)).get("name");
 			memberTag[i] = (String)((JSONObject)((JSONArray)resultObj.get("members")).get(i)).get("tag");
 			
 			playerUrl = con.getPlayerUrl() + memberTag[i];
@@ -80,9 +88,14 @@ public class restController {
 		    clanCardsCollected[i] = (long) ((JSONObject)playerDetails.get("stats")).get("clanCardsCollected");
 		    warWins[i] = (long) ((JSONObject)playerDetails.get("games")).get("warDayWins");
 		    
-			System.out.println(memberList[i]+"      "+warWins[i]+"      "+clanCardsCollected[i]+"\n");			
+			System.out.println(memberName[i]+"      "+warWins[i]+"      "+clanCardsCollected[i]+"\n");	
+			JSONObject warWinsJsonTemp = new JSONObject();
+			warWinsJsonTemp.put("Name",memberName[i]); 
+			warWinsJsonTemp.put("WarWins",warWins[i]); 
+			warWinsJsonTemp.put("ClanCardsCollected",clanCardsCollected[i]); 
+			warWinsJson.put(i,warWinsJsonTemp);
 		}
-		return memberList;
+		return warWinsJson;
 	}
 	
 	/*
