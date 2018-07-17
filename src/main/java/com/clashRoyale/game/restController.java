@@ -70,6 +70,8 @@ public class restController {
 		String playerUrl;
 		JSONObject playerDetails;
 		JSONObject warWinsJson = new JSONObject();
+		JSONArray warWinsArr = new JSONArray();
+
 		String clanUrl=con.getClanUrl() + clanTag;
 		String[] memberName = new String[51];
 		String[] memberTag = new String[51];
@@ -93,8 +95,9 @@ System.out.println(memberCount);
 			warWinsJsonTemp.put("Name",memberName[i]); 
 			warWinsJsonTemp.put("WarWins",warWins[i]); 
 			warWinsJsonTemp.put("ClanCardsCollected",clanCardsCollected[i]); 
-			warWinsJson.put(i,warWinsJsonTemp);
+			warWinsArr.add(warWinsJsonTemp);
 		}
+		warWinsJson.put("WarWins",warWinsArr);
 		return warWinsJson;
 	}
 	
