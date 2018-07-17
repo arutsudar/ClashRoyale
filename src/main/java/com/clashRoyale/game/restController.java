@@ -43,13 +43,6 @@ public class restController {
 	    String playerUrl = con.getPlayerUrl() + playerTag;
 	    return serv.httpCall(playerUrl);
 	}
-	
-	@GetMapping(value="clan/{clanTag}/war")
-	private JSONObject clanWar(@PathVariable("clanTag") String clanTag) {
-	    String clanUrl = con.getClanUrl() + clanTag + "/war";
-	    JSONObject warStats = serv.httpCall(clanUrl);
-	    return warStats;
-	}
 
 	@GetMapping(value="clan/{clanTag}")
 	private JSONObject clan(@PathVariable("clanTag") String clanTag) {
@@ -58,6 +51,13 @@ public class restController {
 	    return clanStats;
 	}
 	
+	@GetMapping(value="clan/{clanTag}/war")
+	private JSONObject clanWar(@PathVariable("clanTag") String clanTag) {
+	    String clanUrl = con.getClanUrl() + clanTag + "/war";
+	    JSONObject warStats = clan(clanUrl);
+	    return warStats;
+	}
+
 	@GetMapping(value="tournament/{tournamentTag}")
 	private JSONObject tournament(@PathVariable("tournamentTag") String tournamentTag) {
 	    String tournamentUrl = con.getTournamentUrl() + tournamentTag;    
@@ -72,7 +72,7 @@ public class restController {
 		String playerName = null;
 		String playerDeckLink = null;
 	    String tournamentUrl = con.getTournamentUrl() + tournamentTag;  
-	    JSONObject tournamentObj = serv.httpCall(tournamentUrl);
+	    JSONObject tournamentObj = tournament(tournamentUrl);
 		long currentNoOfPlayers = (long)tournamentObj.get("currentPlayers");
 		
 		for (int i = 0; i < currentNoOfPlayers; i++) {
@@ -110,7 +110,7 @@ public class restController {
 			memberTag[i] = (String)((JSONObject)((JSONArray)clanObj.get("members")).get(i)).get("tag");
 			
 			playerUrl = con.getPlayerUrl() + memberTag[i];
-		    playerDetails = serv.httpCall(playerUrl);
+		    playerDetails = player(playerUrl);
 		    
 		    clanCardsCollected[i] = (long) ((JSONObject)playerDetails.get("stats")).get("clanCardsCollected");
 		    warWins[i] = (long) ((JSONObject)playerDetails.get("games")).get("warDayWins");
