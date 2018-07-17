@@ -1,6 +1,5 @@
 package com.clashRoyale.game;
 
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +105,6 @@ public class restController {
 		long[] clanCardsCollected = new long[51];
 		JSONObject clanObj = clan(clanUrl);
 		long memberCount = (long) clanObj.get("memberCount");
-System.out.println(memberCount);
 		for (int i = 0; i < memberCount; i++) {
 			memberName[i] = (String) ((JSONObject)((JSONArray)clanObj.get("members")).get(i)).get("name");
 			memberTag[i] = (String)((JSONObject)((JSONArray)clanObj.get("members")).get(i)).get("tag");
@@ -116,8 +114,7 @@ System.out.println(memberCount);
 		    
 		    clanCardsCollected[i] = (long) ((JSONObject)playerDetails.get("stats")).get("clanCardsCollected");
 		    warWins[i] = (long) ((JSONObject)playerDetails.get("games")).get("warDayWins");
-		    
-			System.out.println(memberName[i]+"      "+warWins[i]+"      "+clanCardsCollected[i]+"\n");	
+		    	
 			JSONObject warWinsJsonTemp = new JSONObject();
 			warWinsJsonTemp.put("Name",memberName[i]); 
 			warWinsJsonTemp.put("Tag",memberTag[i]); 
