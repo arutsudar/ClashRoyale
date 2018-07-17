@@ -71,10 +71,8 @@ public class restController {
 		String playerTag = null;
 		String playerName = null;
 		String playerDeckLink = null;
-	    String tournamentUrl = con.getTournamentUrl() + tournamentTag;  
-	    JSONObject tournamentObj = tournament(tournamentUrl);
+	    JSONObject tournamentObj = tournament(tournamentTag);
 		long currentNoOfPlayers = (long)tournamentObj.get("currentPlayers");
-		
 		for (int i = 0; i < currentNoOfPlayers; i++) {
 			playerTag = (String) ((JSONObject)((JSONArray)tournamentObj.get("members")).get(i)).get("tag");
 			playerName = (String) ((JSONObject)((JSONArray)tournamentObj.get("members")).get(i)).get("name");
@@ -93,24 +91,20 @@ public class restController {
 	
 	@GetMapping(value="warwins/{clanTag}")
 	private JSONObject warwins(@PathVariable("clanTag") String clanTag) {
-		String playerUrl;
 		JSONObject playerDetails;
 		JSONObject warWinsJson = new JSONObject();
 		JSONArray warWinsArr = new JSONArray();
-
-		String clanUrl=con.getClanUrl() + clanTag;
 		String[] memberName = new String[51];
 		String[] memberTag = new String[51];
 		long[] warWins = new long[51];
 		long[] clanCardsCollected = new long[51];
-		JSONObject clanObj = clan(clanUrl);
+		JSONObject clanObj = clan(clanTag);
 		long memberCount = (long) clanObj.get("memberCount");
 		for (int i = 0; i < memberCount; i++) {
 			memberName[i] = (String) ((JSONObject)((JSONArray)clanObj.get("members")).get(i)).get("name");
 			memberTag[i] = (String)((JSONObject)((JSONArray)clanObj.get("members")).get(i)).get("tag");
 			
-			playerUrl = con.getPlayerUrl() + memberTag[i];
-		    playerDetails = player(playerUrl);
+		    playerDetails = player(memberTag[i]);
 		    
 		    clanCardsCollected[i] = (long) ((JSONObject)playerDetails.get("stats")).get("clanCardsCollected");
 		    warWins[i] = (long) ((JSONObject)playerDetails.get("games")).get("warDayWins");
