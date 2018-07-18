@@ -53,11 +53,62 @@ public class restController {
 	
 	@GetMapping(value="clan/{clanTag}/war")
 	private JSONObject clanWar(@PathVariable("clanTag") String clanTag) {
-	    String clanUrl = con.getClanUrl() + clanTag + "/war";
-	    JSONObject warStats = clan(clanUrl);
+	    String warUrl = con.getClanUrl() + clanTag + "/war";
+	    JSONObject warStats = serv.httpCall(warUrl);
 	    return warStats;
 	}
 
+	@GetMapping(value="clan/{clanTag}/warlog")
+	private JSONArray clanWarLog(@PathVariable("clanTag") String clanTag) {
+	    String warLogUrl = con.getClanUrl() + clanTag + "/warlog";
+	    JSONArray warLogStats = serv.httpCallReturningAnArray(warLogUrl);
+	    return warLogStats;
+	}
+
+	@GetMapping(value="clan/{clanTag}/warStreak")
+	private JSONObject clanWarStreak(@PathVariable("clanTag") String clanTag) {
+		JSONObject warStreak = new JSONObject();
+		JSONArray warLogStats = clanWarLog(clanTag);
+	    for(Object i:warLogStats) {
+	    	JSONObject x = (JSONObject) i;
+	    	JSONArray participants = (JSONArray) x.get("participants");
+	    	for(Object j:participants) {
+		    	JSONObject y = (JSONObject) j;
+		    	String personTag = (String) y.get("tag");
+		    	if(warStreak.containsKey(personTag)) {
+		    		JSONObject personWarStreak = (JSONObject) warStreak.get(personTag);	    		
+		    		if((int)personWarStreak.get("streakFlag") == 0) {
+			    		long winStreakTemp = (long)personWarStreak.get("winStreak");
+			    		winStreakTemp += (long) y.get("wins");
+			    		personWarStreak.replace("winStreak", winStreakTemp);
+			    		if((long) y.get("wins") == 0)
+			    			personWarStreak.replace("streakFlag",1);
+			    		warStreak.replace(personTag, personWarStreak);
+		    		}
+		    		else
+		    			continue;
+		    	}
+		    	else {
+					JSONObject personWarStreak = new JSONObject();
+					personWarStreak.put("wins", y.get("wins"));
+					personWarStreak.put("cardsEarned", y.get("cardsEarned"));
+					personWarStreak.put("name", y.get("name"));
+					personWarStreak.put("battlesPlayed", y.get("battlesPlayed"));
+		    		if((long) y.get("wins") == 0) {
+		    			personWarStreak.put("streakFlag", 1);
+		    			personWarStreak.put("winStreak", (long)y.get("wins"));
+		    		}
+		    		else {
+		    			personWarStreak.put("streakFlag", 0);
+		    			personWarStreak.put("winStreak", (long)y.get("wins"));
+		    		}
+		    		warStreak.put(personTag, personWarStreak);
+		    	}
+	    	}	    	
+	    }
+	    return warStreak;
+	}
+	
 	@GetMapping(value="tournament/{tournamentTag}")
 	private JSONObject tournament(@PathVariable("tournamentTag") String tournamentTag) {
 	    String tournamentUrl = con.getTournamentUrl() + tournamentTag;    
@@ -87,7 +138,7 @@ public class restController {
 		}
 		tournamentPlayersDecks.put("tournamentPlayersDecks", tournamentPlayersDecksArr);
 		return tournamentPlayersDecks;
-	}
+	}	
 	
 	@GetMapping(value="warwins/{clanTag}")
 	private JSONObject warwins(@PathVariable("clanTag") String clanTag) {

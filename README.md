@@ -6,5 +6,6 @@
 * /tournament/{tournamentTag}
 * /tournamentPlayersDecks/{tournamentTag}
 * /warwins/{clanTag}
+* /clan/{clanTag}/warStreak
 
 ### *Updated as of 17th July 2018*
