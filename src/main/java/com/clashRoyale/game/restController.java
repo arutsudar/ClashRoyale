@@ -65,7 +65,7 @@ public class restController {
 	    return warLogStats;
 	}
 
-	@GetMapping(value="clan/{clanTag}/warStreak")
+	@GetMapping(value="clan/{clanTag}/warDetailsProcessed")
 	private JSONObject clanWarStreak(@PathVariable("clanTag") String clanTag) {
 		long startTime = System.nanoTime();
 		JSONObject warStreak = new JSONObject();
@@ -80,25 +80,21 @@ public class restController {
 		    	String personTag = (String) y.get("tag");
 		    	
 		    	if(warStreak.containsKey(personTag)) {
+		    		
 		    		JSONObject personWarStreak = (JSONObject) warStreak.get(personTag);	
 		    		
 		    		if((int)personWarStreak.get("streakFlag") == 0) {
 			    		long winStreakTemp = (long)personWarStreak.get("winStreak");
 			    		winStreakTemp += (long) y.get("wins");
-			    		long winCountTemp = (long)personWarStreak.get("winCount");
-			    		winCountTemp += (long) y.get("wins");
 			    		personWarStreak.replace("winStreak", winStreakTemp);
-			    		personWarStreak.replace("winCount", winCountTemp);
 			    		
 			    		if((long) y.get("wins") < (long) y.get("battlesPlayed") )
 			    			personWarStreak.replace("streakFlag",1);
 		    		}
-		    		else {
-			    		long winCountTemp = (long)personWarStreak.get("winCount");
-			    		winCountTemp += (long) y.get("wins");
-			    		personWarStreak.replace("winCount", winCountTemp);
-		    		}
-		    		
+
+		    		long winCountTemp = (long)personWarStreak.get("winCount");
+		    		winCountTemp += (long) y.get("wins");
+		    		personWarStreak.replace("winCount", winCountTemp);
 		    		warStreak.replace(personTag, personWarStreak);
 		    	}
 		    	else {
@@ -108,16 +104,13 @@ public class restController {
 					personWarStreak.put("name", y.get("name"));
 					personWarStreak.put("battlesPlayed", y.get("battlesPlayed"));
 					
-		    		if((long) y.get("wins") == 0) {
+		    		if((long) y.get("wins") == 0)
 		    			personWarStreak.put("streakFlag", 1);
-		    			personWarStreak.put("winStreak", (long)y.get("wins"));
-		    			personWarStreak.put("winCount", (long)y.get("wins"));
-		    		}
-		    		else {
+		    		else
 		    			personWarStreak.put("streakFlag", 0);
-		    			personWarStreak.put("winStreak", (long)y.get("wins"));
-		    			personWarStreak.put("winCount", (long)y.get("wins"));
-		    		}
+		    		
+	    			personWarStreak.put("winStreak", (long)y.get("wins"));
+	    			personWarStreak.put("winCount", (long)y.get("wins"));
 		    		warStreak.put(personTag, personWarStreak);
 		    	}
 	    	}	    	
@@ -127,6 +120,7 @@ public class restController {
 	    long elapsedTime = endTime - startTime;
 	    double elapsedTimeInSeconds = (double)elapsedTime / 1000000000.0;
 	    System.out.println("Took "+ elapsedTimeInSeconds + " s"); 
+	    
 	    return warStreak;
 	}
 	
