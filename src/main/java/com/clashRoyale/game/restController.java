@@ -67,26 +67,39 @@ public class restController {
 
 	@GetMapping(value="clan/{clanTag}/warStreak")
 	private JSONObject clanWarStreak(@PathVariable("clanTag") String clanTag) {
+		long startTime = System.nanoTime();
 		JSONObject warStreak = new JSONObject();
 		JSONArray warLogStats = clanWarLog(clanTag);
+		
 	    for(Object i:warLogStats) {
 	    	JSONObject x = (JSONObject) i;
 	    	JSONArray participants = (JSONArray) x.get("participants");
+	    	
 	    	for(Object j:participants) {
 		    	JSONObject y = (JSONObject) j;
 		    	String personTag = (String) y.get("tag");
+		    	
 		    	if(warStreak.containsKey(personTag)) {
-		    		JSONObject personWarStreak = (JSONObject) warStreak.get(personTag);	    		
+		    		JSONObject personWarStreak = (JSONObject) warStreak.get(personTag);	
+		    		
 		    		if((int)personWarStreak.get("streakFlag") == 0) {
 			    		long winStreakTemp = (long)personWarStreak.get("winStreak");
 			    		winStreakTemp += (long) y.get("wins");
+			    		long winCountTemp = (long)personWarStreak.get("winCount");
+			    		winCountTemp += (long) y.get("wins");
 			    		personWarStreak.replace("winStreak", winStreakTemp);
-			    		if((long) y.get("wins") == 0)
+			    		personWarStreak.replace("winCount", winCountTemp);
+			    		
+			    		if((long) y.get("wins") < (long) y.get("battlesPlayed") )
 			    			personWarStreak.replace("streakFlag",1);
-			    		warStreak.replace(personTag, personWarStreak);
 		    		}
-		    		else
-		    			continue;
+		    		else {
+			    		long winCountTemp = (long)personWarStreak.get("winCount");
+			    		winCountTemp += (long) y.get("wins");
+			    		personWarStreak.replace("winCount", winCountTemp);
+		    		}
+		    		
+		    		warStreak.replace(personTag, personWarStreak);
 		    	}
 		    	else {
 					JSONObject personWarStreak = new JSONObject();
@@ -94,18 +107,26 @@ public class restController {
 					personWarStreak.put("cardsEarned", y.get("cardsEarned"));
 					personWarStreak.put("name", y.get("name"));
 					personWarStreak.put("battlesPlayed", y.get("battlesPlayed"));
+					
 		    		if((long) y.get("wins") == 0) {
 		    			personWarStreak.put("streakFlag", 1);
 		    			personWarStreak.put("winStreak", (long)y.get("wins"));
+		    			personWarStreak.put("winCount", (long)y.get("wins"));
 		    		}
 		    		else {
 		    			personWarStreak.put("streakFlag", 0);
 		    			personWarStreak.put("winStreak", (long)y.get("wins"));
+		    			personWarStreak.put("winCount", (long)y.get("wins"));
 		    		}
 		    		warStreak.put(personTag, personWarStreak);
 		    	}
 	    	}	    	
 	    }
+	    
+	    long endTime  = System.nanoTime();
+	    long elapsedTime = endTime - startTime;
+	    double elapsedTimeInSeconds = (double)elapsedTime / 1000000000.0;
+	    System.out.println("Took "+ elapsedTimeInSeconds + " s"); 
 	    return warStreak;
 	}
 	
